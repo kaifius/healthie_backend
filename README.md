@@ -1,4 +1,4 @@
-# Healthie Pairing Exercise
+# Simplified EHR
 
 Rails app modeling providers (e.g. dietitians), their clients, and health journal entries.
 
