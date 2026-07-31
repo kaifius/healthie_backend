@@ -20,4 +20,39 @@ class EnrollmentTest < ActiveSupport::TestCase
                          plan_type: "basic")
     end
   end
+
+  test "accepts the two documented plans" do
+    assert_predicate build_enrollment(plan_type: "basic"), :valid?
+    assert_predicate build_enrollment(plan_type: "premium"), :valid?
+  end
+
+  test "rejects a plan outside the allowed values" do
+    enrollment = build_enrollment(plan_type: "banana")
+
+    assert_not enrollment.valid?
+    assert_includes enrollment.errors[:plan_type], "is not included in the list"
+  end
+
+  test "rejects a blank plan" do
+    [ nil, "" ].each do |blank|
+      enrollment = build_enrollment(plan_type: blank)
+
+      assert_not enrollment.valid?, "expected #{blank.inspect} to be rejected"
+      assert_includes enrollment.errors[:plan_type], "can't be blank"
+    end
+  end
+
+  test "does not fall back to a default plan" do
+    # str_enum assigns values.first unless default: nil is passed. A forgotten
+    # plan should fail loudly rather than quietly become basic.
+    assert_nil Enrollment.new.plan_type
+  end
+
+  private
+    # client_with_one_provider and provider_with_one_client are not enrolled
+    # with each other in the fixtures, so this pair is free to validate against.
+    def build_enrollment(attributes)
+      Enrollment.new({ client: clients(:client_with_one_provider),
+                       provider: providers(:provider_with_one_client) }.merge(attributes))
+    end
 end
