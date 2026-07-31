@@ -1,0 +1,17 @@
+# The shared client is enrolled twice on different plans — that pair of rows is
+# what demonstrates the plan belongs to the enrollment, not to the client.
+
+solo_client_basic:
+  client: client_with_one_provider
+  provider: provider_with_two_clients
+  plan_type: basic
+
+shared_client_premium:
+  client: client_with_two_providers
+  provider: provider_with_two_clients
+  plan_type: premium
+
+shared_client_basic:
+  client: client_with_two_providers
+  provider: provider_with_one_client
+  plan_type: basic

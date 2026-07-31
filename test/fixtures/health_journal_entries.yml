@@ -1,0 +1,18 @@
+# created_at is explicit so ordering assertions are deterministic. The middle
+# entry belongs to a different client than the outer two, so a provider-wide
+# sort has to interleave across clients rather than group by client.
+
+oldest_entry:
+  client: client_with_one_provider
+  body: Started the new meal plan today.
+  created_at: 2026-07-01 09:00:00
+
+middle_entry:
+  client: client_with_two_providers
+  body: Ran 5k without stopping for the first time.
+  created_at: 2026-07-10 18:30:00
+
+newest_entry:
+  client: client_with_one_provider
+  body: Two weeks in, sleeping better.
+  created_at: 2026-07-15 07:45:00

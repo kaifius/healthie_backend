@@ -1,0 +1,10 @@
+# provider_with_two_clients sees both clients; provider_with_one_client sees
+# only the shared one, so provider-scoped queries have something to exclude.
+
+provider_with_two_clients:
+  name: Two-Client Provider
+  email: two-client-provider@example.com
+
+provider_with_one_client:
+  name: One-Client Provider
+  email: one-client-provider@example.com

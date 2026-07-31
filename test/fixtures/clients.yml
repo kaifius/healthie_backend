@@ -1,0 +1,10 @@
+# Labelled by role. client_with_two_providers is the case that forces the plan
+# onto the join table; client_with_one_provider is the one with a journal history.
+
+client_with_one_provider:
+  name: Solo Client
+  email: solo-client@example.com
+
+client_with_two_providers:
+  name: Shared Client
+  email: shared-client@example.com
