@@ -12,18 +12,26 @@ class HealthJournalEntry < ApplicationRecord
   validate :within_plan_entry_limit, on: :create
 
   private
-    # The plan lives on the enrollment, so a client can be basic with one
-    # provider and premium with another. The allowance is counted per client
-    # across every provider they write to, and a single premium enrollment lifts
-    # it — the entry's own provider is deliberately not consulted. A client with
-    # no enrollment at all gets the basic limit rather than an unlimited journal.
+    # The plan lives on the enrollment, so the allowance belongs to the
+    # client-provider pair: the same client can be capped with one provider and
+    # unlimited with another, and each pair's entries are counted on their own.
+    # A pair with no current enrollment gets the basic limit rather than an
+    # unlimited journal.
     def within_plan_entry_limit
-      return if client.nil?
-      return if client.enrollments.premium.exists?
-      return if client.health_journal_entries.in_month.count < BASIC_PLAN_MONTHLY_ENTRY_LIMIT
+      return if client.nil? || provider.nil?
+      return if enrollment&.premium?
+      return if pair_entries.in_month.count < BASIC_PLAN_MONTHLY_ENTRY_LIMIT
 
       errors.add(
         :base, "basic plan is limited to #{BASIC_PLAN_MONTHLY_ENTRY_LIMIT} " \
-          "health journal entries per calendar month")
+          "health journal entries per provider per calendar month")
+    end
+
+    def enrollment
+      client.enrollments.current.find_by(provider_id: provider_id)
+    end
+
+    def pair_entries
+      client.health_journal_entries.where(provider_id: provider_id)
     end
 end
