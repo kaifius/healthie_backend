@@ -6,6 +6,18 @@ class HealthJournalEntryTest < ActiveSupport::TestCase
                  health_journal_entries(:oldest_entry).client
   end
 
+  test "belongs to the provider it was written for" do
+    assert_equal providers(:provider_with_one_client),
+                 health_journal_entries(:cross_provider_entry).provider
+  end
+
+  test "requires a provider" do
+    entry = HealthJournalEntry.new(client: clients(:client_with_one_provider), body: "No provider.")
+
+    assert_not entry.valid?
+    assert_includes entry.errors[:provider], "must exist"
+  end
+
   test "newest_first orders by most recent" do
     assert_equal [ health_journal_entries(:newest_entry), health_journal_entries(:oldest_entry) ],
                  clients(:client_with_one_provider).health_journal_entries.newest_first
@@ -64,7 +76,7 @@ class HealthJournalEntryTest < ActiveSupport::TestCase
     MONTHLY_LIMIT = HealthJournalEntry::BASIC_PLAN_MONTHLY_ENTRY_LIMIT
 
     def build_entry(client)
-      client.health_journal_entries.build(body: "One more entry.")
+      client.health_journal_entries.build(body: "One more entry.", provider: client.providers.first)
     end
 
     # Tops the client's month up to the given size so the assertions read in
@@ -72,7 +84,9 @@ class HealthJournalEntryTest < ActiveSupport::TestCase
     # all dated in the past, so they never land in the month being filled.
     def fill_month(client, size, at: Time.current)
       (size - client.health_journal_entries.in_month(at).count).times do |i|
-        client.health_journal_entries.create!(body: "Filler entry #{i}.", created_at: at)
+        client.health_journal_entries.create!(body: "Filler entry #{i}.",
+                                              provider: client.providers.first,
+                                              created_at: at)
       end
     end
 end

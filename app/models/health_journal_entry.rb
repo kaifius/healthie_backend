@@ -2,6 +2,7 @@ class HealthJournalEntry < ApplicationRecord
   BASIC_PLAN_MONTHLY_ENTRY_LIMIT = 10
 
   belongs_to :client
+  belongs_to :provider
 
   scope :newest_first, -> { order(created_at: :desc) }
   # Calendar month in the app's time zone, not a rolling 30 days: the allowance
@@ -12,10 +13,10 @@ class HealthJournalEntry < ApplicationRecord
 
   private
     # The plan lives on the enrollment, so a client can be basic with one
-    # provider and premium with another. A single premium enrollment lifts the
-    # cap: the journal belongs to the client, not to a provider, so there is no
-    # per-provider slice of it to limit. A client with no enrollment at all gets
-    # the basic limit rather than an unlimited journal.
+    # provider and premium with another. The allowance is counted per client
+    # across every provider they write to, and a single premium enrollment lifts
+    # it — the entry's own provider is deliberately not consulted. A client with
+    # no enrollment at all gets the basic limit rather than an unlimited journal.
     def within_plan_entry_limit
       return if client.nil?
       return if client.enrollments.premium.exists?

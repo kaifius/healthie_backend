@@ -16,8 +16,9 @@ class ClientTest < ActiveSupport::TestCase
                  clients(:client_with_one_provider).health_journal_entries.order(:created_at)
   end
 
-  test "journal entries are scoped to the client" do
-    assert_equal [ health_journal_entries(:middle_entry) ],
-                 clients(:client_with_two_providers).health_journal_entries
+  test "journal entries are scoped to the client but span its providers" do
+    assert_equal [ health_journal_entries(:middle_entry),
+                   health_journal_entries(:cross_provider_entry) ],
+                 clients(:client_with_two_providers).health_journal_entries.order(:created_at)
   end
 end

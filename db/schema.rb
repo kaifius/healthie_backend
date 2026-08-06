@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_30_042625) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_06_120000) do
   create_table "clients", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", null: false
@@ -22,10 +22,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_042625) do
   create_table "enrollments", force: :cascade do |t|
     t.integer "client_id", null: false
     t.datetime "created_at", null: false
+    t.date "end_date"
     t.string "plan_type", null: false
     t.integer "provider_id", null: false
+    t.date "start_date"
     t.datetime "updated_at", null: false
-    t.index ["client_id", "provider_id"], name: "index_enrollments_on_client_id_and_provider_id", unique: true
+    t.index ["client_id", "provider_id"], name: "index_enrollments_on_client_and_provider_current", unique: true, where: "end_date IS NULL"
     t.index ["provider_id"], name: "index_enrollments_on_provider_id"
   end
 
@@ -33,8 +35,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_042625) do
     t.text "body", null: false
     t.integer "client_id", null: false
     t.datetime "created_at", null: false
+    t.integer "provider_id", null: false
     t.datetime "updated_at", null: false
     t.index ["client_id"], name: "index_health_journal_entries_on_client_id"
+    t.index ["provider_id"], name: "index_health_journal_entries_on_provider_id"
   end
 
   create_table "providers", force: :cascade do |t|
@@ -48,4 +52,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_30_042625) do
   add_foreign_key "enrollments", "clients"
   add_foreign_key "enrollments", "providers"
   add_foreign_key "health_journal_entries", "clients"
+  add_foreign_key "health_journal_entries", "providers"
 end

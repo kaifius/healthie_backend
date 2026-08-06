@@ -11,15 +11,15 @@ class ProviderTest < ActiveSupport::TestCase
                  providers(:provider_with_one_client).clients
   end
 
-  test "has many journal entries through clients, across all of them" do
+  test "has many journal entries, interleaved across its clients" do
     assert_equal [ health_journal_entries(:newest_entry),
                    health_journal_entries(:middle_entry),
                    health_journal_entries(:oldest_entry) ],
                  providers(:provider_with_two_clients).health_journal_entries.newest_first
   end
 
-  test "journal entries exclude clients of other providers" do
-    assert_equal [ health_journal_entries(:middle_entry) ],
+  test "journal entries exclude those a shared client addressed elsewhere" do
+    assert_equal [ health_journal_entries(:cross_provider_entry) ],
                  providers(:provider_with_one_client).health_journal_entries
   end
 end

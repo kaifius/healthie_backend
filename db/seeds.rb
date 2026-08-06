@@ -29,14 +29,16 @@ Enrollment.create!(client: robin, provider: omar, plan_type: "premium")
 Enrollment.create!(client: sam,   provider: omar, plan_type: "basic")
 
 # --- Journal entries -------------------------------------------------------
-# Backdated and interleaved across clients so ordering is visible.
+# Backdated and interleaved across clients so ordering is visible. Robin writes
+# to both providers, so a client's journal spans providers while each provider
+# only sees what was addressed to it.
 
 [
-  [ jules, "Started the new meal plan today.",            10.days.ago ],
-  [ robin, "Ran 5k without stopping for the first time.",  8.days.ago ],
-  [ jules, "Two weeks in, sleeping better.",               5.days.ago ],
-  [ sam,   "Logged everything I ate this week.",           3.days.ago ],
-  [ robin, "Energy dipped in the afternoon again.",        1.day.ago ]
-].each do |client, body, created_at|
-  HealthJournalEntry.create!(client: client, body: body, created_at: created_at)
+  [ jules, dana, "Started the new meal plan today.",            10.days.ago ],
+  [ robin, dana, "Ran 5k without stopping for the first time.",  8.days.ago ],
+  [ jules, dana, "Two weeks in, sleeping better.",               5.days.ago ],
+  [ sam,   omar, "Logged everything I ate this week.",           3.days.ago ],
+  [ robin, omar, "Energy dipped in the afternoon again.",        1.day.ago ]
+].each do |client, provider, body, created_at|
+  HealthJournalEntry.create!(client: client, provider: provider, body: body, created_at: created_at)
 end

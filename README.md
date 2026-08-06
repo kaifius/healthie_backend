@@ -6,6 +6,7 @@ Rails app modeling providers (e.g. dietitians), their clients, and health journa
 
 ```
 Provider ──< Enrollment >── Client ──< HealthJournalEntry
+    └──────────────< HealthJournalEntry
 ```
 
 | Model | Columns | Notes |
@@ -13,7 +14,7 @@ Provider ──< Enrollment >── Client ──< HealthJournalEntry
 | `Provider` | `name`, `email` | `email` unique |
 | `Client` | `name`, `email` | `email` unique |
 | `Enrollment` | `client_id`, `provider_id`, `plan_type` | join model; unique on `[client_id, provider_id]` |
-| `HealthJournalEntry` | `client_id`, `body` | sorted by `created_at` |
+| `HealthJournalEntry` | `client_id`, `provider_id`, `body` | sorted by `created_at` |
 
 `Enrollment` is a `has_many :through` join rather than a plain `has_and_belongs_to_many`
 because the plan is a property of the *pair*: a client can be premium with one provider and
@@ -29,10 +30,12 @@ describes. If clients need to be able to backdate entries, I'd add an `entered_a
 provider.clients                              # all clients for a given provider
 client.providers                              # all providers for a given client
 client.health_journal_entries.newest_first    # a client's entries, sorted by date
-provider.health_journal_entries.newest_first  # entries across a provider's clients, sorted
+provider.health_journal_entries.newest_first  # entries addressed to a provider, sorted
 ```
 
-The last one works because `Provider has_many :health_journal_entries, through: :clients`.
+An entry names the provider it was written for, so `Provider has_many :health_journal_entries`
+directly. A shared client's journal spans providers; each provider sees only its own slice of
+it, while the client sees all of it.
 
 ## Running it locally
 
